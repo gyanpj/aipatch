@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CyberSecAI Dashboard Mock</title>
+  <style>
+    :root {
+      --bg: #0f1a2b;
+      --fg: #e0e6f0;
+      --accent: #4fd1c5;
+      --link: #61dafb;
+      --section-header: #f39c12;
+      --card-bg: #1a2233;
+      --box-bg: #222a3b;
+      --border: #2a2f3d;
+      --radius: 12px;
+      --font: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin:0;
+      font-family:var(--font);
+      background:var(--bg);
+      color:var(--fg);
+    }
+    .header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:16px 24px; background:var(--card-bg);
+    }
+    .logo { font-size:20px; font-weight:600; color:var(--accent); }
+    .nav a { margin:0 12px; color:var(--fg); text-decoration:none; font-weight:500; }
+
+    .global-tabs {
+      display:flex; gap:16px; padding:16px 24px;
+      border-bottom:1px solid var(--border);
+    }
+    .global-tab {
+      cursor:pointer; padding-bottom:4px;
+      color:var(--fg); font-weight:500;
+    }
+    .global-tab.active {
+      color:var(--link); border-bottom:2px solid var(--link);
+    }
+
+    .content-container {
+      display:flex; flex-direction:column; gap:32px; margin:0 16px;
+    }
+    .remediation-active .remediation-section { order:1; }
+    .remediation-active .detection-section  { order:2; }
+
+    .section-header {
+      margin:24px 0 8px; font-size:20px; color:var(--section-header);
+    }
+
+    /* Remediation section */
+    .remediation-section { display:flex; flex-direction:column; gap:24px; }
+
+    /* summary cards */
+    .rem-summary { display:flex; gap:16px; }
+    .card {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:16px; flex:1;
+    }
+    .card h3 { margin:0; font-size:14px; color:var(--section-header); }
+    .card .value { font-size:28px; margin-top:8px; }
+    .num { color:var(--link); text-decoration:none; }
+
+    /* detail remediation boxes */
+    .remediation-detail { display:flex; gap:16px; }
+    .rem-box {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:24px; flex:1;
+    }
+    .rem-box h4 { margin:0 0 8px; font-size:16px; color:var(--section-header); }
+    .rem-box ul { list-style:none; margin:0; padding:0; font-size:14px; }
+    .rem-box li { display:flex; justify-content:space-between; padding:8px 0; }
+
+    /* Detection section */
+    .detection-section { display:flex; flex-direction:column; gap:24px; }
+    .kpi { display:flex; gap:16px; }
+    .domain-card {
+      background:var(--card-bg); border-radius:var(--radius);
+      padding:24px;
+    }
+    .domain-card h3 { margin:0 0 8px; font-size:16px; color:var(--section-header); }
+    .domain-card p { margin:0 0 16px; font-size:14px; }
+    .domain-card p a { color:var(--link); text-decoration:underline; }
+
+    .section { display:flex; gap:16px; }
+    .section-item {
+      background:var(--box-bg); border:1px solid var(--border);
+      border-radius:var(--radius); padding:16px; flex:1;
+    }
+    .section-item h4 { margin:0 0 8px; font-size:14px; color:var(--section-header); }
+    .section-item ul { list-style:none; margin:0; padding:0; font-size:14px; }
+    .section-item li { display:flex; justify-content:space-between; padding:6px 0; }
+
+    /* Footer */
+    .footer { text-align:center; padding:24px; }
+    .button {
+      background:transparent; color:var(--accent);
+      border:2px solid var(--accent); border-radius:var(--radius);
+      padding:8px 16px; margin:0 8px; cursor:pointer; font-weight:500;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">CyberSecAI</div>
+    <nav class="nav">
+      <a href="#">Overview</a><a href="#">Domains</a><a href="#">Scanners</a><a href="#">Settings</a>
+    </nav>
+  </div>
+
+  <div class="global-tabs">
+    <div class="global-tab active" data-tab="remediation">Remediation</div>
+    <div class="global-tab"       data-tab="detection">Detection</div>
+  </div>
+
+  <div class="content-container">
+
+    <!-- Remediation Section -->
+    <div class="remediation-section">
+
+      <div class="section-header">Remediation Summary</div>
+      <div class="rem-summary">
+        <div class="card">
+          <h3>Total Vulnerabilities Discovered</h3>
+          <div class="value"><a class="num" href="#">59</a></div>
+        </div>
+        <div class="card">
+          <h3>Vulnerabilities Remediated</h3>
+          <div class="value"><a class="num" href="#">41</a></div>
+        </div>
+        <div class="card">
+          <h3>Vulnerabilities Open</h3>
+          <div class="value"><a class="num" href="#">12</a></div>
+        </div>
+        <div class="card">
+          <h3>False Positives</h3>
+          <div class="value"><a class="num" href="#">6</a></div>
+        </div>
+      </div>
+
+      <div class="remediation-detail">
+        <div class="rem-box">
+          <h4>CVE Exploit Remediation</h4>
+          <ul>
+            <li>Auto CVE Patches Triggered: <a class="num" href="#">27</a></li>
+            <li>WAF Rules Updated: <a class="num" href="#">14</a></li>
+            <li>Alerts Active & Monitored: <a class="num" href="#">5</a></li>
+            <li>Endpoints Isolated: <a class="num" href="#">3</a></li>
+            <li>Mean Time to Remediate: <a class="num" href="#">3h 20m</a></li>
+            <li>Remediation Compliance %: <a class="num" href="#">95%</a></li>
+            <li>MITRE Coverage %: <a class="num" href="#">80%</a></li>
+            <li>Open Backlog Age: <a class="num" href="#">12 days</a></li>
+          </ul>
+        </div>
+        <div class="rem-box">
+          <h4>Vulnerability Remediation</h4>
+          <ul>
+            <li>Issues Tracked & In Progress: <a class="num" href="#">32</a></li>
+            <li>WAF Rules Applied: <a class="num" href="#">18</a></li>
+            <li>Alerts Active & Monitored: <a class="num" href="#">7</a></li>
+            <li>Endpoints Isolated: <a class="num" href="#">4</a></li>
+            <li>Mean Time to Fix: <a class="num" href="#">4h 05m</a></li>
+            <li>Fix Success Rate: <a class="num" href="#">92%</a></li>
+            <li>False Positive Rate: <a class="num" href="#">6%</a></li>
+            <li>Open Tickets Age: <a class="num" href="#">15 days</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Detection Section -->
+    <div class="detection-section">
+      <div class="section-header">Detection</div>
+      <div class="kpi">
+        <div class="card">
+          <h3>Domains Discovered</h3>
+          <div class="value"><a class="num" href="#">42</a></div>
+        </div>
+        <div class="card">
+          <h3>Domains Inspected</h3>
+          <div class="value"><a class="num" href="#">36</a></div>
+        </div>
+        <div class="card">
+          <h3>Mean Time to Detect</h3>
+          <div class="value"><a class="num" href="#">2h 15m</a></div>
+        </div>
+        <div class="card">
+          <h3>Top MITRE Tactic</h3>
+          <div class="value"><a class="num" href="#">TA0001</a></div>
+        </div>
+      </div>
+
+      <div class="domain-card">
+        <h3>www.example.com</h3>
+        <p><a href="#">Endpoints Discovered: <span class="num">8</span></a></p>
+        <div class="section">
+          <div class="section-item">
+            <h4>Incoming Payload (Total: <a class="num" href="#">1 289</a>)</h4>
+            <ul>
+              <li>CVE Exploits <a class="num" href="#">45</a></li>
+              <li>Vulnerable <a class="num" href="#">90</a></li>
+              <li>Anomalies <a class="num" href="#">12</a></li>
+              <li>Good <a class="num" href="#">1 137</a></li>
+              <li>Uninspected <a class="num" href="#">5</a></li>
+            </ul>
+          </div>
+          <div class="section-item">
+            <h4>Outgoing Payload (Total: <a class="num" href="#">1 177</a>)</h4>
+            <ul>
+              <li>CVE Exploits <a class="num" href="#">4</a></li>
+              <li>Vulnerable <a class="num" href="#">12</a></li>
+              <li>Anomalies <a class="num" href="#">8</a></li>
+              <li>Good <a class="num" href="#">1 150</a></li>
+              <li>Uninspected <a class="num" href="#">3</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="button">+ Add Domain</button>
+    <button class="button">+ Add Scanner</button>
+  </div>
+
+  <script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.global-tab');
+    const container = document.querySelector('.content-container');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        if (tab.dataset.tab === 'remediation') {
+          document.body.classList.add('remediation-active');
+        } else {
+          document.body.classList.remove('remediation-active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
