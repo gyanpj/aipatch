@@ -1,0 +1,153 @@
+<!-- patching-workflow.html (Updated Vis.js for Bigger Boxes and Two-Row Layout) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSecAI - AI Patching Workflow</title>
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1a2b;
+      --fg: #e0e6f0;
+      --accent: #4fd1c5;
+      --link: #61dafb;
+      --section-header: #f39c12;
+      --card-bg: #1a2233;
+      --box-bg: #222a3b;
+      --border: #2a2f3d;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      --radius: 12px;
+      --font: 'Inter', sans-serif;
+      --transition: all 0.3s ease;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: var(--card-bg);
+      box-shadow: var(--shadow);
+    }
+    .logo { font-size: 24px; font-weight: 700; color: var(--accent); }
+    .nav a {
+      margin: 0 16px; color: var(--fg); text-decoration: none; font-weight: 500;
+      transition: var(--transition);
+    }
+    .nav a:hover { color: var(--accent); }
+
+    .workflow-container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+    #network { height: 500px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .status-legend { display: flex; gap: 16px; margin-top: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .legend-color { width: 16px; height: 16px; border-radius: 50%; }
+
+    .section-header {
+      margin: 0 0 16px; font-size: 22px; color: var(--section-header);
+      font-weight: 600;
+    }
+    .recent-activity {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow); transition: var(--transition);
+    }
+    .recent-activity:hover { transform: translateY(-4px); }
+    .recent-activity h4 { margin: 0 0 12px; font-size: 18px; color: var(--section-header); font-weight: 600; }
+    .recent-activity ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .recent-activity li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .recent-activity li:last-child { border-bottom: none; }
+    .recent-activity li .desc { flex: 1; color: var(--fg); }
+    .recent-activity li .time { color: var(--accent); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">CyberSecAI</div>
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="patching-workflow.html">Patching Workflow</a>
+      <a href="cve-fingerprinting.html">Fingerprinting</a>
+      <a href="add-domain.html">Add Domain</a>
+      <a href="scanner-config.html">Scanner Config</a>
+    </nav>
+  </div>
+
+  <div class="workflow-container">
+    <div class="section-header">AI-Driven Patching Workflow</div>
+    <p>Visualizing the automated sequence for detected vulnerabilities (CVEs and non-CVEs). Click nodes for details.</p>
+    
+    <div id="network"></div>
+    
+    <div class="status-legend">
+      <div class="legend-item"><div class="legend-color" style="background:#4fd1c5"></div> Completed</div>
+      <div class="legend-item"><div class="legend-color" style="background:#f39c12"></div> In Progress</div>
+      <div class="legend-item"><div class="legend-color" style="background:#ff0000"></div> Issue/Blocked</div>
+    </div>
+    
+    <div class="recent-activity">
+      <h4>Active Workflows</h4>
+      <ul>
+        <li><span class="desc">CVE-2024-5678: At Functional Testing (Est. Completion: 2h)</span> <span class="time">In Progress</span></li>
+        <li><span class="desc">Non-CVE XSS: At Auto CR/PR Generation</span> <span class="time">In Progress</span></li>
+        <li><span class="desc">CVE-2023-1234: Deployed to Prod</span> <span class="time">Completed</span></li>
+        <li><span class="desc">Anomaly #45: Triaging Blocked (Manual Review Needed)</span> <span class="time">Issue</span></li>
+        <li><span class="desc">SQL Injection: Patch in Non-Prod</span> <span class="time">In Progress</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Create nodes and edges for Vis.js
+    var nodes = new vis.DataSet([
+      { id: 1, label: 'Detection\n(Payload Inspection & Gen AI Match)', color: '#4fd1c5', shape: 'box', font: { multi: true }, x: 0, y: 0 },
+      { id: 2, label: 'Jira Filing\n(Ticket Created)', color: '#f39c12', shape: 'box', font: { multi: true }, x: 450, y: 0 },
+      { id: 3, label: 'Triaging\n(Manual/AI Review - Optional)', color: '#61dafb', shape: 'box', font: { multi: true }, x: 900, y: 0 },
+      { id: 4, label: 'Auto CR/PR Generation\n(AI-Coded Patch)', color: '#e0e6f0', shape: 'box', font: { multi: true }, x: 1350, y: 0 },
+      { id: 5, label: 'Patch in Non-Prod\n(Deploy & Test)', color: '#e0e6f0', shape: 'box', font: { multi: true }, x: 225, y: 250 },
+      { id: 6, label: 'Functional Testing\n(AI-Verified)', color: '#e0e6f0', shape: 'box', font: { multi: true }, x: 675, y: 250 },
+      { id: 7, label: 'Deploy to Prod\n(Live Rollout)', color: '#e0e6f0', shape: 'box', font: { multi: true }, x: 1125, y: 250 }
+    ]);
+
+    var edges = new vis.DataSet([
+      { from: 1, to: 2, arrows: 'to', label: 'Auto-Trigger' },
+      { from: 2, to: 3, arrows: 'to' },
+      { from: 3, to: 4, arrows: 'to' },
+      { from: 4, to: 5, arrows: 'to' },
+      { from: 5, to: 6, arrows: 'to' },
+      { from: 6, to: 7, arrows: 'to' }
+    ]);
+
+    var container = document.getElementById('network');
+    var data = { nodes: nodes, edges: edges };
+    var options = {
+      layout: { hierarchical: false },  // Disable hierarchical to use custom positions
+      physics: { enabled: false },  // Fix positions
+      edges: {
+        smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 },
+        color: { color: '#e0e6f0' },
+        arrows: { to: { scaleFactor: 0.5 } }
+      },
+      nodes: {
+        shape: 'box',
+        font: { color: '#0f1a2b', size: 16, face: 'Inter' },
+        margin: 20,
+        widthConstraint: { minimum: 250, maximum: 300 }
+      },
+      interaction: { hover: true, zoomView: true, dragView: true }
+    };
+
+    var network = new vis.Network(container, data, options);
+
+    // Mock interactivity: Click on nodes
+    network.on('click', function(params) {
+      if (params.nodes.length > 0) {
+        alert('Node details: Example step information for node ' + params.nodes[0]);
+      }
+    });
+  </script>
+</body>
+</html>

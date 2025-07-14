@@ -1,0 +1,116 @@
+<!-- scanner-config.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSecAI - CVE Scanner Configuration</title>
+  <style>
+    :root {
+      --bg: #0f1a2b;
+      --fg: #e0e6f0;
+      --accent: #4fd1c5;
+      --link: #61dafb;
+      --section-header: #f39c12;
+      --card-bg: #1a2233;
+      --box-bg: #222a3b;
+      --border: #2a2f3d;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      --radius: 12px;
+      --font: 'Inter', sans-serif;
+      --transition: all 0.3s ease;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
+    }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: var(--card-bg);
+      box-shadow: var(--shadow);
+    }
+    .logo { font-size: 24px; font-weight: 700; color: var(--accent); }
+    .nav a {
+      margin: 0 16px; color: var(--fg); text-decoration: none; font-weight: 500;
+      transition: var(--transition);
+    }
+    .nav a:hover { color: var(--accent); }
+
+    .content-container { display: flex; flex-direction: column; gap: 32px; padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .section-header { margin: 0 0 16px; font-size: 22px; color: var(--section-header); font-weight: 600; }
+    form { background: var(--card-bg); padding: 24px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    form label { display: block; margin-bottom: 16px; }
+    form input, form select { width: 100%; background: var(--box-bg); border: 1px solid var(--border); color: var(--fg); padding: 8px; border-radius: var(--radius); }
+    .button {
+      background: transparent; color: var(--accent);
+      border: 2px solid var(--accent); border-radius: var(--radius);
+      padding: 12px 24px; cursor: pointer; font-weight: 600;
+      transition: var(--transition);
+    }
+    .button:hover { background: var(--accent); color: var(--bg); }
+    .rem-box {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow); transition: var(--transition);
+    }
+    .rem-box:hover { transform: translateY(-4px); }
+    .rem-box h4 { margin: 0 0 12px; font-size: 18px; color: var(--section-header); font-weight: 600; }
+    .rem-box ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .rem-box li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .rem-box li:last-child { border-bottom: none; }
+    .num { color: var(--link); text-decoration: none; cursor: pointer; }
+    .num:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">CyberSecAI</div>
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="patching-workflow.html">Patching Workflow</a>
+      <a href="cve-fingerprinting.html">Fingerprinting</a>
+      <a href="add-domain.html">Add Domain</a>
+      <a href="scanner-config.html">Scanner Config</a>
+    </nav>
+  </div>
+
+  <div class="content-container">
+    <div class="section-header">Configure CVE Scanners</div>
+    <p>Integrate with existing scanners to pull CVEs for AWS resources.</p>
+    
+    <form id="scannerForm">
+      <label>Select Scanner: 
+        <select>
+          <option>AWS Inspector</option>
+          <option>Nessus</option>
+          <option>Custom</option>
+        </select>
+      </label>
+      <label>AWS Resource ID: <input type="text" placeholder="Resource ARN" required></label>
+      <button class="button" type="submit">Pull CVEs</button>
+    </form>
+    
+    <div class="rem-box">
+      <h4>Pulled CVEs</h4>
+      <ul>
+        <li>CVE-2024-5678: High Severity <a class="num" href="#">Details</a></li>
+        <li>CVE-2023-1234: Medium Severity <a class="num" href="#">Details</a></li>
+        <li>CVE-2024-7890: Critical Severity <a class="num" href="#">Details</a></li>
+        <li>CVE-2022-4567: Low Severity <a class="num" href="#">Details</a></li>
+        <li>CVE-2021-2345: High Severity <a class="num" href="#">Details</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('scannerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('CVEs pulled successfully! Redirecting to dashboard...');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
