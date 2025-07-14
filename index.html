@@ -1,8 +1,13 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CyberSecAI Dashboard Mock</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
   <style>
     :root {
       --bg: #0f1a2b;
@@ -13,95 +18,146 @@
       --card-bg: #1a2233;
       --box-bg: #222a3b;
       --border: #2a2f3d;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       --radius: 12px;
       --font: 'Inter', sans-serif;
+      --transition: all 0.3s ease;
     }
     * { box-sizing: border-box; }
     body {
-      margin:0;
-      font-family:var(--font);
-      background:var(--bg);
-      color:var(--fg);
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.5;
     }
     .header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:16px 24px; background:var(--card-bg);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; background: var(--card-bg);
+      box-shadow: var(--shadow);
     }
-    .logo { font-size:20px; font-weight:600; color:var(--accent); }
-    .nav a { margin:0 12px; color:var(--fg); text-decoration:none; font-weight:500; }
+    .logo { font-size: 24px; font-weight: 700; color: var(--accent); }
+    .nav a {
+      margin: 0 16px; color: var(--fg); text-decoration: none; font-weight: 500;
+      transition: var(--transition);
+    }
+    .nav a:hover { color: var(--accent); }
 
     .global-tabs {
-      display:flex; gap:16px; padding:16px 24px;
-      border-bottom:1px solid var(--border);
+      display: flex; gap: 24px; padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
     }
     .global-tab {
-      cursor:pointer; padding-bottom:4px;
-      color:var(--fg); font-weight:500;
+      cursor: pointer; padding-bottom: 8px;
+      color: var(--fg); font-weight: 600; transition: var(--transition);
     }
+    .global-tab:hover { color: var(--link); }
     .global-tab.active {
-      color:var(--link); border-bottom:2px solid var(--link);
+      color: var(--link); border-bottom: 3px solid var(--link);
     }
 
     .content-container {
-      display:flex; flex-direction:column; gap:32px; margin:0 16px;
+      display: flex; flex-direction: column; gap: 32px; padding: 24px;
+      max-width: 1400px; margin: 0 auto;
     }
-    .remediation-active .remediation-section { order:1; }
-    .remediation-active .detection-section  { order:2; }
+    .content-container .section { display: none; }
+    .content-container.remediation .remediation-section { display: flex; }
+    .content-container.detection .detection-section { display: flex; }
 
     .section-header {
-      margin:24px 0 8px; font-size:20px; color:var(--section-header);
+      margin: 0 0 16px; font-size: 22px; color: var(--section-header);
+      font-weight: 600;
     }
 
     /* Remediation section */
-    .remediation-section { display:flex; flex-direction:column; gap:24px; }
+    .remediation-section, .detection-section {
+      flex-direction: column; gap: 32px; width: 100%;
+    }
 
     /* summary cards */
-    .rem-summary { display:flex; gap:16px; }
+    .rem-summary, .kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
     .card {
-      background:var(--card-bg); border-radius:var(--radius);
-      padding:16px; flex:1;
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 20px; box-shadow: var(--shadow); transition: var(--transition);
     }
-    .card h3 { margin:0; font-size:14px; color:var(--section-header); }
-    .card .value { font-size:28px; margin-top:8px; }
-    .num { color:var(--link); text-decoration:none; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
+    .card h3 { margin: 0; font-size: 14px; color: var(--section-header); font-weight: 500; }
+    .card .value { font-size: 32px; margin-top: 8px; font-weight: 700; }
+    .num { color: var(--link); text-decoration: none; cursor: pointer; }
+    .num:hover { text-decoration: underline; }
 
     /* detail remediation boxes */
-    .remediation-detail { display:flex; gap:16px; }
+    .remediation-detail { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
     .rem-box {
-      background:var(--card-bg); border-radius:var(--radius);
-      padding:24px; flex:1;
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow); transition: var(--transition);
     }
-    .rem-box h4 { margin:0 0 8px; font-size:16px; color:var(--section-header); }
-    .rem-box ul { list-style:none; margin:0; padding:0; font-size:14px; }
-    .rem-box li { display:flex; justify-content:space-between; padding:8px 0; }
+    .rem-box:hover { transform: translateY(-4px); }
+    .rem-box h4 { margin: 0 0 12px; font-size: 18px; color: var(--section-header); font-weight: 600; }
+    .rem-box ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .rem-box li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .rem-box li:last-child { border-bottom: none; }
+    .rem-box li span { color: var(--fg); }
+    .rem-box li .num { font-weight: 600; }
 
     /* Detection section */
-    .detection-section { display:flex; flex-direction:column; gap:24px; }
-    .kpi { display:flex; gap:16px; }
     .domain-card {
-      background:var(--card-bg); border-radius:var(--radius);
-      padding:24px;
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow); transition: var(--transition);
     }
-    .domain-card h3 { margin:0 0 8px; font-size:16px; color:var(--section-header); }
-    .domain-card p { margin:0 0 16px; font-size:14px; }
-    .domain-card p a { color:var(--link); text-decoration:underline; }
+    .domain-card:hover { transform: translateY(-4px); }
+    .domain-card h3 { margin: 0 0 12px; font-size: 18px; color: var(--section-header); font-weight: 600; }
+    .domain-card p { margin: 0 0 16px; font-size: 14px; }
+    .domain-card p a { color: var(--link); text-decoration: underline; cursor: pointer; }
 
-    .section { display:flex; gap:16px; }
+    .section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
     .section-item {
-      background:var(--box-bg); border:1px solid var(--border);
-      border-radius:var(--radius); padding:16px; flex:1;
+      background: var(--box-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+      transition: var(--transition);
     }
-    .section-item h4 { margin:0 0 8px; font-size:14px; color:var(--section-header); }
-    .section-item ul { list-style:none; margin:0; padding:0; font-size:14px; }
-    .section-item li { display:flex; justify-content:space-between; padding:6px 0; }
+    .section-item:hover { transform: translateY(-4px); }
+    .section-item h4 { margin: 0 0 12px; font-size: 16px; color: var(--section-header); font-weight: 500; }
+    .section-item ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .section-item li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .section-item li:last-child { border-bottom: none; }
+
+    /* Chart containers */
+    .chart-container {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 20px; box-shadow: var(--shadow);
+    }
+    .time-slider {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    }
+    .time-slider label { font-size: 14px; color: var(--fg); }
+    .time-slider input[type="range"] {
+      flex: 1; accent-color: var(--accent);
+    }
+    .time-slider span { font-weight: 600; color: var(--link); }
+
+    /* Recent activity */
+    .recent-activity {
+      background: var(--card-bg); border-radius: var(--radius);
+      padding: 24px; box-shadow: var(--shadow); transition: var(--transition);
+    }
+    .recent-activity:hover { transform: translateY(-4px); }
+    .recent-activity h4 { margin: 0 0 12px; font-size: 18px; color: var(--section-header); font-weight: 600; }
+    .recent-activity ul { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+    .recent-activity li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .recent-activity li:last-child { border-bottom: none; }
+    .recent-activity li .desc { flex: 1; color: var(--fg); }
+    .recent-activity li .time { color: var(--accent); font-weight: 500; }
 
     /* Footer */
-    .footer { text-align:center; padding:24px; }
+    .footer { text-align: center; padding: 32px 24px; }
     .button {
-      background:transparent; color:var(--accent);
-      border:2px solid var(--accent); border-radius:var(--radius);
-      padding:8px 16px; margin:0 8px; cursor:pointer; font-weight:500;
+      background: transparent; color: var(--accent);
+      border: 2px solid var(--accent); border-radius: var(--radius);
+      padding: 12px 24px; margin: 0 12px; cursor: pointer; font-weight: 600;
+      transition: var(--transition);
     }
+    .button:hover { background: var(--accent); color: var(--bg); }
   </style>
 </head>
 <body>
@@ -115,120 +171,165 @@
 
   <div class="global-tabs">
     <div class="global-tab active" data-tab="remediation">Remediation</div>
-    <div class="global-tab"       data-tab="detection">Detection</div>
+    <div class="global-tab" data-tab="detection">Detection</div>
   </div>
 
-  <div class="content-container">
+  <div class="content-container remediation">
 
     <!-- Remediation Section -->
     <div class="remediation-section">
 
       <div class="section-header">Remediation Summary</div>
       <div class="rem-summary">
-        <div class="card">
+        <div class="card" title="Total vulnerabilities identified via payload inspection and Gen AI CVE matching">
           <h3>Total Vulnerabilities Discovered</h3>
           <div class="value"><a class="num" href="#">59</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Vulnerabilities successfully remediated, including auto-patched CVEs">
           <h3>Vulnerabilities Remediated</h3>
           <div class="value"><a class="num" href="#">41</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Open vulnerabilities awaiting remediation or auto-patching">
           <h3>Vulnerabilities Open</h3>
           <div class="value"><a class="num" href="#">12</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Detections marked as false positives after review">
           <h3>False Positives</h3>
           <div class="value"><a class="num" href="#">6</a></div>
         </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="time-slider">
+          <label>Time Range: <span id="vulnTimeValue">30</span> days</label>
+          <input type="range" min="7" max="90" value="30" id="vulnTimeSlider">
+        </div>
+        <canvas id="vulnChart"></canvas>
       </div>
 
       <div class="remediation-detail">
         <div class="rem-box">
           <h4>CVE Exploit Remediation</h4>
           <ul>
-            <li>Auto CVE Patches Triggered: <a class="num" href="#">27</a></li>
-            <li>WAF Rules Updated: <a class="num" href="#">14</a></li>
-            <li>Alerts Active & Monitored: <a class="num" href="#">5</a></li>
-            <li>Endpoints Isolated: <a class="num" href="#">3</a></li>
-            <li>Mean Time to Remediate: <a class="num" href="#">3h 20m</a></li>
-            <li>Remediation Compliance %: <a class="num" href="#">95%</a></li>
-            <li>MITRE Coverage %: <a class="num" href="#">80%</a></li>
-            <li>Open Backlog Age: <a class="num" href="#">12 days</a></li>
+            <li><span>Auto CVE Patches Triggered (via Gen AI Match)</span> <a class="num" href="#" title="Automated patches applied based on CVE fingerprint matches in incoming payloads">27</a></li>
+            <li><span>WAF Rules Updated for CVE Blocks</span> <a class="num" href="#" title="Web Application Firewall rules auto-updated to block detected CVE exploits">14</a></li>
+            <li><span>Alerts Active & Monitored</span> <a class="num" href="#" title="Ongoing alerts for tracked CVE issues">5</a></li>
+            <li><span>Endpoints Isolated Due to CVE</span> <a class="num" href="#" title="Endpoints automatically isolated upon CVE detection">3</a></li>
+            <li><span>Mean Time to Remediate CVE</span> <a class="num" href="#" title="Average time from detection to auto-patching">3h 20m</a></li>
+            <li><span>Remediation Compliance %</span> <a class="num" href="#" title="Percentage of CVEs compliant with auto-patching policies">95%</a></li>
+            <li><span>MITRE Coverage % for CVEs</span> <a class="num" href="#" title="Coverage of MITRE ATT&CK tactics in CVE remediations">80%</a></li>
+            <li><span>Open Backlog Age</span> <a class="num" href="#" title="Average age of open CVE remediation tasks">12 days</a></li>
           </ul>
         </div>
         <div class="rem-box">
-          <h4>Vulnerability Remediation</h4>
+          <h4>Non-CVE Vulnerability Remediation</h4>
           <ul>
-            <li>Issues Tracked & In Progress: <a class="num" href="#">32</a></li>
-            <li>WAF Rules Applied: <a class="num" href="#">18</a></li>
-            <li>Alerts Active & Monitored: <a class="num" href="#">7</a></li>
-            <li>Endpoints Isolated: <a class="num" href="#">4</a></li>
-            <li>Mean Time to Fix: <a class="num" href="#">4h 05m</a></li>
-            <li>Fix Success Rate: <a class="num" href="#">92%</a></li>
-            <li>False Positive Rate: <a class="num" href="#">6%</a></li>
-            <li>Open Tickets Age: <a class="num" href="#">15 days</a></li>
+            <li><span>Issues Tracked & In Progress</span> <a class="num" href="#" title="Non-CVE security issues detected in payloads and tracked for fixing">32</a></li>
+            <li><span>WAF Rules Applied for Vulnerabilities</span> <a class="num" href="#" title="WAF rules applied to mitigate non-CVE vulnerabilities">18</a></li>
+            <li><span>Alerts Active & Monitored</span> <a class="num" href="#" title="Alerts for non-CVE issues under monitoring">7</a></li>
+            <li><span>Endpoints Isolated</span> <a class="num" href="#" title="Endpoints isolated due to non-CVE detections">4</a></li>
+            <li><span>Mean Time to Fix</span> <a class="num" href="#" title="Average time to resolve non-CVE vulnerabilities">4h 05m</a></li>
+            <li><span>Auto-Fix Success Rate</span> <a class="num" href="#" title="Success rate of automated fixes for vulnerabilities">92%</a></li>
+            <li><span>False Positive Rate</span> <a class="num" href="#" title="Rate of detections incorrectly flagged as issues">6%</a></li>
+            <li><span>Open Tickets Age</span> <a class="num" href="#" title="Average age of open non-CVE tickets">15 days</a></li>
           </ul>
         </div>
+      </div>
+
+      <div class="recent-activity">
+        <h4>Recent Remediations</h4>
+        <ul>
+          <li><span class="desc">Auto-patched CVE-2024-5678 detected via Gen AI fingerprint in incoming payload to /api/v1</span> <span class="time">5 min ago</span></li>
+          <li><span class="desc">WAF rule updated for non-CVE SQL injection vulnerability in payload from IP 192.168.1.1</span> <span class="time">12 min ago</span></li>
+          <li><span class="desc">Endpoint /auth/login isolated due to detected CVE-2023-1234 exploit attempt</span> <span class="time">28 min ago</span></li>
+          <li><span class="desc">False positive marked for anomaly in outgoing payload; no action taken</span> <span class="time">45 min ago</span></li>
+          <li><span class="desc">Auto-fixed non-CVE XSS vulnerability in incoming form data payload</span> <span class="time">1h 10m ago</span></li>
+        </ul>
       </div>
 
     </div>
 
     <!-- Detection Section -->
     <div class="detection-section">
-      <div class="section-header">Detection</div>
+
+      <div class="section-header">Detection Overview</div>
       <div class="kpi">
-        <div class="card">
+        <div class="card" title="Total domains discovered for traffic inspection">
           <h3>Domains Discovered</h3>
           <div class="value"><a class="num" href="#">42</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Domains actively inspected for incoming payloads">
           <h3>Domains Inspected</h3>
           <div class="value"><a class="num" href="#">36</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Average time from payload receipt to detection">
           <h3>Mean Time to Detect</h3>
           <div class="value"><a class="num" href="#">2h 15m</a></div>
         </div>
-        <div class="card">
+        <div class="card" title="Most common MITRE ATT&CK tactic in detections">
           <h3>Top MITRE Tactic</h3>
           <div class="value"><a class="num" href="#">TA0001</a></div>
         </div>
+        <div class="card" title="Detections made via Generative AI CVE fingerprint matching">
+          <h3>Gen AI CVE Matches</h3>
+          <div class="value"><a class="num" href="#">28</a></div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="time-slider">
+          <label>Time Range: <span id="detectTimeValue">30</span> days</label>
+          <input type="range" min="7" max="90" value="30" id="detectTimeSlider">
+        </div>
+        <canvas id="detectChart"></canvas>
       </div>
 
       <div class="domain-card">
         <h3>www.example.com</h3>
-        <p><a href="#">Endpoints Discovered: <span class="num">8</span></a></p>
+        <p title="Endpoints discovered through payload traffic analysis"><a href="#">Endpoints Discovered: <span class="num">8</span></a></p>
+        <p title="CVE matches found using Gen AI on incoming/outgoing payloads"><a href="#">Gen AI CVE Matches: <span class="num">15</span></a></p>
+        <p title="Non-CVE security issues detected in payloads"><a href="#">Non-CVE Issues Detected: <span class="num">22</span></a></p>
         <div class="section">
           <div class="section-item">
-            <h4>Incoming Payload (Total: <a class="num" href="#">1 289</a>)</h4>
+            <h4>Incoming Payload Inspections (Total: <a class="num" href="#" title="Total incoming payloads inspected for vulnerabilities">1,289</a>)</h4>
             <ul>
-              <li>CVE Exploits <a class="num" href="#">45</a></li>
-              <li>Vulnerable <a class="num" href="#">90</a></li>
-              <li>Anomalies <a class="num" href="#">12</a></li>
-              <li>Good <a class="num" href="#">1 137</a></li>
-              <li>Uninspected <a class="num" href="#">5</a></li>
+              <li>CVE Exploits Detected <a class="num" href="#" title="CVE exploits matched via Gen AI fingerprinting">45</a></li>
+              <li>Non-CVE Vulnerabilities <a class="num" href="#" title="Other security vulnerabilities in incoming payloads">90</a></li>
+              <li>Anomalies Flagged <a class="num" href="#" title="Unusual patterns detected in payloads">12</a></li>
+              <li>Good / Safe Payloads <a class="num" href="#" title="Payloads cleared after inspection">1,137</a></li>
+              <li>Uninspected (Pending) <a class="num" href="#" title="Payloads awaiting inspection">5</a></li>
             </ul>
           </div>
           <div class="section-item">
-            <h4>Outgoing Payload (Total: <a class="num" href="#">1 177</a>)</h4>
+            <h4>Outgoing Payload Inspections (Total: <a class="num" href="#" title="Total outgoing payloads inspected for vulnerabilities">1,177</a>)</h4>
             <ul>
-              <li>CVE Exploits <a class="num" href="#">4</a></li>
-              <li>Vulnerable <a class="num" href="#">12</a></li>
-              <li>Anomalies <a class="num" href="#">8</a></li>
-              <li>Good <a class="num" href="#">1 150</a></li>
-              <li>Uninspected <a class="num" href="#">3</a></li>
+              <li>CVE Exploits Detected <a class="num" href="#" title="CVE exploits matched via Gen AI fingerprinting">4</a></li>
+              <li>Non-CVE Vulnerabilities <a class="num" href="#" title="Other security vulnerabilities in outgoing payloads">12</a></li>
+              <li>Anomalies Flagged <a class="num" href="#" title="Unusual patterns detected in payloads">8</a></li>
+              <li>Good / Safe Payloads <a class="num" href="#" title="Payloads cleared after inspection">1,150</a></li>
+              <li>Uninspected (Pending) <a class="num" href="#" title="Payloads awaiting inspection">3</a></li>
             </ul>
           </div>
         </div>
+      </div>
+
+      <div class="recent-activity">
+        <h4>Recent Detections</h4>
+        <ul>
+          <li><span class="desc">Gen AI matched CVE-2024-5678 in incoming payload to /api/v1 from IP 192.168.1.1</span> <span class="time">5 min ago</span></li>
+          <li><span class="desc">Non-CVE SQL injection detected in payload; tracking for auto-fix</span> <span class="time">12 min ago</span></li>
+          <li><span class="desc">Anomaly flagged in outgoing payload; Gen AI analysis pending</span> <span class="time">28 min ago</span></li>
+          <li><span class="desc">CVE-2023-1234 exploit attempt detected via fingerprint match</span> <span class="time">45 min ago</span></li>
+          <li><span class="desc">Non-CVE XSS vulnerability identified in incoming form data</span> <span class="time">1h 10m ago</span></li>
+        </ul>
       </div>
 
     </div>
   </div>
 
   <div class="footer">
-    <button class="button">+ Add Domain</button>
-    <button class="button">+ Add Scanner</button>
+    <button class="button">+ Add Domain for Inspection</button>
+    <button class="button">+ Add Scanner for Payload Analysis</button>
   </div>
 
   <script>
@@ -239,13 +340,116 @@
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        if (tab.dataset.tab === 'remediation') {
-          document.body.classList.add('remediation-active');
-        } else {
-          document.body.classList.remove('remediation-active');
+        container.classList.remove('remediation', 'detection');
+        container.classList.add(tab.dataset.tab);
+      });
+    });
+
+    // Mock data generation
+    function generateMockData(days) {
+      const data = [];
+      const today = new Date('2025-07-14');
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - i);
+        data.push({
+          date: date.toISOString().split('T')[0],
+          remediated: Math.floor(Math.random() * 20) + 10,
+          open: Math.floor(Math.random() * 10) + 5,
+          inspections: Math.floor(Math.random() * 200) + 100
+        });
+      }
+      return data;
+    }
+
+    const fullData = generateMockData(90);
+
+    // Function to filter data by days
+    function filterData(data, days) {
+      return data.slice(-days);
+    }
+
+    // Chart configs
+    let vulnChart, detectChart;
+
+    function createVulnChart(data) {
+      const ctx = document.getElementById('vulnChart').getContext('2d');
+      if (vulnChart) vulnChart.destroy();
+      vulnChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Remediated',
+            data: data.map(d => ({x: d.date, y: d.remediated})),
+            borderColor: '#4fd1c5',
+            fill: false
+          }, {
+            label: 'Open',
+            data: data.map(d => ({x: d.date, y: d.open})),
+            borderColor: '#f39c12',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { type: 'time', time: { unit: 'day' } },
+            y: { beginAtZero: true }
+          },
+          plugins: {
+            legend: { display: true },
+            title: { display: true, text: 'Vulnerability Trend (Remediated vs. Open over Time)' }
+          }
         }
       });
+    }
+
+    function createDetectChart(data) {
+      const ctx = document.getElementById('detectChart').getContext('2d');
+      if (detectChart) detectChart.destroy();
+      detectChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Payload Inspections',
+            data: data.map(d => ({x: d.date, y: d.inspections})),
+            borderColor: '#61dafb',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { type: 'time', time: { unit: 'day' } },
+            y: { beginAtZero: true }
+          },
+          plugins: {
+            legend: { display: true },
+            title: { display: true, text: 'Detection Metrics (Payload Inspections over Time)' }
+          }
+        }
+      });
+    }
+
+    // Initial charts
+    createVulnChart(filterData(fullData, 30));
+    createDetectChart(filterData(fullData, 30));
+
+    // Slider listeners
+    const vulnSlider = document.getElementById('vulnTimeSlider');
+    const vulnValue = document.getElementById('vulnTimeValue');
+    vulnSlider.addEventListener('input', () => {
+      vulnValue.textContent = vulnSlider.value;
+      createVulnChart(filterData(fullData, parseInt(vulnSlider.value)));
+    });
+
+    const detectSlider = document.getElementById('detectTimeSlider');
+    const detectValue = document.getElementById('detectTimeValue');
+    detectSlider.addEventListener('input', () => {
+      detectValue.textContent = detectSlider.value;
+      createDetectChart(filterData(fullData, parseInt(detectSlider.value)));
     });
   </script>
 </body>
 </html>
+```
